@@ -15,14 +15,7 @@ const initialProducts = [
   { id: 8, name: 'Drip Scale with Timer', category: 'Accessories', stock: 3, price: 65, cost: 31, status: 'Low Stock' },
 ];
 
-const initialCustomers = [
-  { id: 1, name: 'Alex Johnson', email: 'alex.j@example.com', phone: '+1 555-0123', orders: 12, spent: 1240.5, credit: 0, lastOrder: '2 days ago', tier: 'Platinum', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Alex' },
-  { id: 2, name: 'Sarah Williams', email: 'sarah.w@example.com', phone: '+1 555-0124', orders: 8, spent: 850, credit: 120, lastOrder: '1 week ago', tier: 'Gold', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah' },
-  { id: 3, name: 'Michael Chen', email: 'michael.c@example.com', phone: '+1 555-0125', orders: 24, spent: 4200.75, credit: 0, lastOrder: 'Yesterday', tier: 'Diamond', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Michael' },
-  { id: 4, name: 'Emily Davis', email: 'emily.d@example.com', phone: '+1 555-0126', orders: 3, spent: 150.25, credit: 45.5, lastOrder: '2 weeks ago', tier: 'Silver', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Emily' },
-  { id: 5, name: 'James Wilson', email: 'james.w@example.com', phone: '+1 555-0127', orders: 15, spent: 2100, credit: 0, lastOrder: '3 days ago', tier: 'Platinum', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=James' },
-  { id: 6, name: 'Olivia Martinez', email: 'olivia.m@example.com', phone: '+1 555-0128', orders: 5, spent: 450, credit: 25, lastOrder: '5 days ago', tier: 'Gold', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Olivia' },
-];
+const initialCustomers = [];
 
 const initialSettings = {
   workspaceName: 'ShopMind AI Enterprise',
@@ -132,7 +125,6 @@ export const BusinessDataProvider = ({ children }) => {
   };
 
   const addCustomer = (customer) => {
-    const firstName = customer.name.trim().split(' ')[0] || 'Client';
     const nextCustomer = {
       id: Date.now(),
       name: customer.name.trim(),
@@ -141,9 +133,9 @@ export const BusinessDataProvider = ({ children }) => {
       orders: Number(customer.orders || 0),
       spent: Number(customer.spent || 0),
       credit: Number(customer.credit || 0),
-      lastOrder: 'Today',
+      lastOrder: '',
       tier: customer.tier,
-      avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(firstName)}`,
+      avatar: '',
     };
     setCustomers((current) => [nextCustomer, ...current]);
     return nextCustomer;

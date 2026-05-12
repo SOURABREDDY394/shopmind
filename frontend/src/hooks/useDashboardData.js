@@ -13,6 +13,7 @@ const emptyMetrics = {
   totalCustomers: 0,
   totalUnitsSold: 0,
   averageOrderValue: 0,
+  lowStockCount: 0,
   topProducts: [],
   revenueOverview: monthLabels.map((name) => ({ name, revenue: 0 })),
   insightCount: 0,
@@ -26,6 +27,7 @@ const calculateDashboardMetrics = ({ products, customers, orders, orderItems, ai
   const activeOrders = orders.filter((order) => activeStatuses.has(order.status)).length;
   const completedOrderIds = new Set(completedOrders.map((order) => order.id));
   const productNamesById = new Map(products.map((product) => [product.id, product.name]));
+  const lowStockCount = products.filter((product) => Number(product.stock || 0) <= 5).length;
 
   const productSales = orderItems
     .filter((item) => completedOrderIds.has(item.order_id))
@@ -69,6 +71,7 @@ const calculateDashboardMetrics = ({ products, customers, orders, orderItems, ai
     totalCustomers: customers.length,
     totalUnitsSold: topProducts.reduce((sum, product) => sum + product.sales, 0),
     averageOrderValue: completedOrders.length ? grossRevenue / completedOrders.length : 0,
+    lowStockCount,
     topProducts,
     revenueOverview: [...monthlyRevenue.values()],
     insightCount: aiInsights.length,
@@ -130,18 +133,20 @@ export const useDashboardData = () => {
       }
 
       const [
+        productsResult,
         customersResult,
         ordersResult,
         orderItemsResult,
         aiInsightsResult,
       ] = await Promise.all([
+        supabase.from('products').select('id,name,price,stock,created_at'),
         supabase.from('customers').select('id,name,email,created_at'),
         supabase.from('orders').select('id,customer_id,total,status,created_at'),
         supabase.from('order_items').select('id,order_id,product_id,quantity,price'),
         supabase.from('ai_insights').select('id,title,body,created_at'),
       ]);
 
-      const failed = [customersResult, ordersResult, orderItemsResult, aiInsightsResult].find((result) => result.error);
+      const failed = [productsResult, customersResult, ordersResult, orderItemsResult, aiInsightsResult].find((result) => result.error);
       if (cancelled) return;
 
       if (failed) {
@@ -163,7 +168,7 @@ export const useDashboardData = () => {
         loading: false,
         error: '',
         data: {
-          products: productsConnectionTest.data || [],
+          products: productsResult.data || [],
           customers: customersResult.data || [],
           orders: ordersResult.data || [],
           orderItems: orderItemsResult.data || [],
